@@ -38,12 +38,6 @@ The supported time-interval/duration types are:
 public enum Components: Hashable {
     ///Use to specify no component.
     case None
-    ///Set the argument to `nil` to use the default value of 24 rows
-    case Hour(Int?)
-    ///Set the argument to `nil` to use the default value of 60 rows
-    case Minute(Int?)
-    ///Set the argument to `nil` to use the default value of 60 rows
-    case Second(Int?)
     ///Set the argument to `nil` to use the default value of 100 rows
     case Year(Int?)
     ///Set the argument to `nil` to use the default value of 12 rows
@@ -52,6 +46,13 @@ public enum Components: Hashable {
     case Week(Int?)
     ///Set the argument to `nil` to use the default value of 7 rows
     case Day(Int?)
+    ///Set the argument to `nil` to use the default value of 24 rows
+    case Hour(Int?)
+    ///Set the argument to `nil` to use the default value of 60 rows
+    case Minute(Int?)
+    ///Set the argument to `nil` to use the default value of 60 rows
+    case Second(Int?)
+
     
     
     public var hashValue : Int {
@@ -84,19 +85,19 @@ public enum Components: Hashable {
         switch self {
         case .None:
             return -1
-        case .Hour:
-            return 0
-        case .Minute:
-            return 1
-        case .Second:
-            return 2
         case .Year:
-            return 3
+            return 0
         case .Month:
-            return 4
+            return 1
         case .Week:
-            return 5
+            return 2
         case .Day:
+            return 3
+        case .Hour:
+            return 4
+        case .Minute:
+            return 5
+        case .Second:
             return 6
         }
         
@@ -161,6 +162,12 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         }
     }
     
+    public var timeIntervalAsISO8601: String? {
+        get {
+            return self.getTimeIntervalInISO8601()
+        }
+    }
+    
     //TODO: Have a more general 'setPickerToTimeInterval()'
     
     public func setTimeIntervalAnimated(interval: NSTimeInterval) {
@@ -169,9 +176,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     
     public func setPickerComponentsToValuesAnimated(componentOneValue: String?, componentTwoValue: String?,
         componentThreeValue: String?) {
-            
-            
-            
+
             self.setPickerComponentsToValues(componentOneValue?.toInt(), componentTwoValue: componentTwoValue?.toInt(), componentThreeValue: componentThreeValue?.toInt(), animated: true)
     }
     
@@ -549,12 +554,10 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     // MARK: - Helpers
     
     private var numberOfComponents: Int {
-        get {
             if let safeCount = self.componentsArray?.count {
                 return safeCount
             }
             return 0
-        }
     }
     
     private func getComponentForPickerComponentPosition(componentPostiion: Int) -> Components {
@@ -749,25 +752,76 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             switch self.numberOfComponents {
                 
             case 1:
-                numberOne = self.getFormattedComponentValue(0)
+                numberOne = self.getComponentValueWithTypeAbbreviation(0)
                 return (valueOne: numberOne, valueTwo: "", valueThree: "")
             case 2:
-                numberOne = self.getFormattedComponentValue(0)
-                numberTwo = self.getFormattedComponentValue(1)
+                numberOne = self.getComponentValueWithTypeAbbreviation(0)
+                numberTwo = self.getComponentValueWithTypeAbbreviation(1)
                 return (valueOne: numberOne, valueTwo: numberTwo, valueThree: "")
             case 3:
-                numberOne = self.getFormattedComponentValue(0)
-                numberTwo = self.getFormattedComponentValue(1)
-                numberThree = self.getFormattedComponentValue(2)
+                numberOne = self.getComponentValueWithTypeAbbreviation(0)
+                numberTwo = self.getComponentValueWithTypeAbbreviation(1)
+                numberThree = self.getComponentValueWithTypeAbbreviation(2)
                 return (valueOne: numberOne, valueTwo: numberTwo, valueThree: numberThree)
             default:
                 return ("","","")
             }
-            
-            
     }
     
-    private func getFormattedComponentValue(componentPosition: Int) -> String {
+    private func getTimeIntervalInISO8601() -> String? {
+        
+        var isoFormatString: String?
+        
+        if let safeArray = self.componentsArray {
+            
+            // Sort array in descending order, also remove any instance of .None from the array.
+            let sortedComponents = sorted(safeArray.filter({ $0 != .None })){ $0.hashValue < $1.hashValue }
+
+            for (index, comp) in enumerate(sortedComponents) {
+                
+                if index == 0 {
+                    isoFormatString = "P"
+                }
+                
+                // get the corresponting index so we know which to component to look in.
+                let correspondingIndex = find(safeArray, comp)
+                if correspondingIndex == nil {
+                    break
+                }
+                
+                switch comp {
+                    
+                case .Hour, .Minute, .Second:
+                    
+                    if !contains(isoFormatString!, "T") {
+                        isoFormatString? += "T"
+                    }
+                
+                    isoFormatString? += self.getComponentValueWithTypeAbbreviation(correspondingIndex!)
+
+                    break
+                    
+                case .None:
+                    //Shouldn't happen.
+                    break
+                
+                default:
+                    
+                    isoFormatString? += self.getComponentValueWithTypeAbbreviation(correspondingIndex!)
+                    
+                    break
+                }
+            }
+        }
+
+        return isoFormatString
+    }
+    
+    /**
+    Gets the displayed number value in the componenent, no formatting.
+
+    */
+    private func getComponentValue(componentPosition: Int) -> String {
         
         if self.pickerView.selectedRowInComponent(componentPosition) == 0 {
             return ""
@@ -775,19 +829,45 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         
         switch self.getComponentForPickerComponentPosition(componentPosition) {
         case .Hour:
-            return "\(self.pickerView.selectedRowInComponent(componentPosition))h"
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))"
         case .Minute:
-            return "\(self.pickerView.selectedRowInComponent(componentPosition))m"
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))"
         case .Second:
-            return "\(self.pickerView.selectedRowInComponent(componentPosition))s"
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))"
         case .Year:
-            return "\(self.pickerView.selectedRowInComponent(componentPosition))y"
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))"
         case .Month:
-            return "\(self.pickerView.selectedRowInComponent(componentPosition))m"
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))"
         case .Week:
-            return "\(self.pickerView.selectedRowInComponent(componentPosition))w"
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))"
         case .Day:
-            return "\(self.pickerView.selectedRowInComponent(componentPosition))d"
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))"
+        default:
+            return ""
+        }
+    }
+    
+    private func getComponentValueWithTypeAbbreviation(componentPosition: Int) -> String {
+        
+        if self.pickerView.selectedRowInComponent(componentPosition) == 0 {
+            return ""
+        }
+        
+        switch self.getComponentForPickerComponentPosition(componentPosition) {
+        case .Hour:
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))H"
+        case .Minute:
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))M"
+        case .Second:
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))S"
+        case .Year:
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))Y"
+        case .Month:
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))M"
+        case .Week:
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))W"
+        case .Day:
+            return "\(self.pickerView.selectedRowInComponent(componentPosition))D"
         default:
             return ""
         }
