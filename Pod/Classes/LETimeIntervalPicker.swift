@@ -52,9 +52,8 @@ public enum Components: Hashable {
     case Minute(Int?)
     ///Set the argument to `nil` to use the default value of 60 rows
     case Second(Int?)
-
     
-    
+    ///The hashValue of the `Component` so we can conform to `Hashable` and be sorted.
     public var hashValue : Int {
         return self.toInt()
     }
@@ -62,12 +61,6 @@ public enum Components: Hashable {
     ///The default row count for the Component, if there wasn't one specified.
     public var defaultRowCount : Int {
         switch self {
-        case .Hour(nil):
-            return 24
-        case .Minute(nil):
-            return 60
-        case .Second(nil):
-            return 60
         case .Year(nil):
             return 100
         case .Month(nil):
@@ -76,11 +69,18 @@ public enum Components: Hashable {
             return 52
         case .Day(nil):
             return 7
+        case .Hour(nil):
+            return 24
+        case .Minute(nil):
+            return 60
+        case .Second(nil):
+            return 60
         default:
             return -1
         }
     }
     
+    /// Return an 'Int' value for each `Component` type so `Component` can conform to `Hashable`. Ordered from largest time interval to smallest.
     private func toInt() -> Int {
         switch self {
         case .None:
@@ -768,31 +768,34 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             }
     }
     
-    private func getTimeIntervalInISO8601() -> String? {
+   private func getTimeIntervalInISO8601() -> String? {
         
         var isoFormatString: String?
         
-        if let safeArray = self.componentsArray {
+        if var safeArray = self.componentsArray {
             
-            // Sort array in descending order, also remove any instance of .None from the array.
-            let sortedComponents = sorted(safeArray.filter({ $0 != .None })){ $0.hashValue < $1.hashValue }
+            // Sort array in descending order.
+            let sortedComponents = sorted(safeArray){ $0.hashValue < $1.hashValue }
 
             for (index, comp) in enumerate(sortedComponents) {
                 
-                if index == 0 {
-                    isoFormatString = "P"
+                // get the corresponting index so we know which component to look in.
+                let correspondingIndex = find(safeArray, comp)
+                
+                // if the corresponding index in nil, or if the corresopnding component row is zero then continue.
+                if correspondingIndex == nil || self.pickerView.selectedRowInComponent(correspondingIndex!) == 0 {
+                    continue
                 }
                 
-                // get the corresponting index so we know which to component to look in.
-                let correspondingIndex = find(safeArray, comp)
-                if correspondingIndex == nil {
-                    break
+                // Want to make sure there is only one 'P' and it's at the beginning of the string.
+                if isoFormatString == nil || isEmpty(isoFormatString!) {
+                    isoFormatString = "P"
                 }
                 
                 switch comp {
                     
                 case .Hour, .Minute, .Second:
-                    
+                    // if we are an Hour, Minute, Second component type then we need to make sure that there is a'T' before any of these component types are added to the string.
                     if !contains(isoFormatString!, "T") {
                         isoFormatString? += "T"
                     }

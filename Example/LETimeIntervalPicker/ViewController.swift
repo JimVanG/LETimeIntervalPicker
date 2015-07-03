@@ -20,11 +20,16 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         formatter.unitsStyle = .Abbreviated
+        picker.componentOne = .None
+        picker.componentTwo = .Minute(54)
+        picker.componentThree = .Month(14)
+        picker.setup()
+        
     }
     
     @IBAction func updateLabel(sender: LETimeIntervalPicker) {
-        label.text = formatter.stringFromTimeInterval(sender.timeInterval)
-
+//        label.text = formatter.stringFromTimeInterval(sender.timeInterval)
+        label.text = sender.timeIntervalAsISO8601
     }
     
     @IBAction func setRandomTimeInterval() {
