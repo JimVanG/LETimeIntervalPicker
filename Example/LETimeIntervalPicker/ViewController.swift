@@ -21,7 +21,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         formatter.unitsStyle = .Abbreviated
         picker.componentOne = .None
-        picker.componentTwo = .Minute(54)
+        picker.componentTwo = .None
         picker.componentThree = .Month(14)
         picker.setup()
         

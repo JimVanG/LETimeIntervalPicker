@@ -17,10 +17,10 @@ Usage:
 
     //specifies that componentOne will be in years with 20 rows.
     self.picker.componentOne = .Year(20)
-    //specifies that componentTwo will be in hours with 13 rows.
-    self.picker.componentTwo = .Hours(13)
-    //specifies that componentThree will be in minutes and will use the default value (60 rows)
-    self.picker.componentThree = .Minutes(nil)
+    //specifies that componentTwo will be in minutes and will use the default value (60 rows)
+    self.picker.componentTwo = .Minutes(nil)
+    //specifies that componentThree will be in hours with 13 rows.
+    self.picker.componentThree = .Hours(13)
     //makes it so there will be no componentThree
     self.picker.componentThree = .None
 
@@ -61,19 +61,19 @@ public enum Components: Hashable {
     ///The default row count for the Component, if there wasn't one specified.
     public var defaultRowCount : Int {
         switch self {
-        case .Year(nil):
+        case .Year:
             return 100
-        case .Month(nil):
+        case .Month:
             return 12
-        case .Week(nil):
+        case .Week:
             return 52
-        case .Day(nil):
+        case .Day:
             return 7
-        case .Hour(nil):
+        case .Hour:
             return 24
-        case .Minute(nil):
+        case .Minute:
             return 60
-        case .Second(nil):
+        case .Second:
             return 60
         default:
             return -1
