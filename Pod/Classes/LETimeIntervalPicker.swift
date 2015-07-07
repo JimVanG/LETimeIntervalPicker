@@ -272,7 +272,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             case 1:
                 self.labelOne.setTranslatesAutoresizingMaskIntoConstraints(false)
                 labelOne.text = getLabelTextForComponent(safeComponents[0])
-                self.labelOneWidth = labelOne.bounds.width
+                self.labelOneWidth = labelOne.frame.width
                 self.addSubview(labelOne)
                 break
                 
@@ -280,10 +280,10 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 self.labelOne.setTranslatesAutoresizingMaskIntoConstraints(false)
                 self.labelTwo.setTranslatesAutoresizingMaskIntoConstraints(false)
                 labelOne.text = getLabelTextForComponent(safeComponents[0])
-                self.labelOneWidth = labelOne.bounds.width
+                self.labelOneWidth = labelOne.frame.width
                 self.addSubview(labelOne)
                 labelTwo.text = getLabelTextForComponent(safeComponents[1])
-                self.labelTwoWidth = labelTwo.bounds.width
+                self.labelTwoWidth = labelTwo.frame.width
                 self.addSubview(labelTwo)
                 break
                 
@@ -292,13 +292,13 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 self.labelTwo.setTranslatesAutoresizingMaskIntoConstraints(false)
                 self.labelThree.setTranslatesAutoresizingMaskIntoConstraints(false)
                 labelOne.text = getLabelTextForComponent(safeComponents[0])
-                self.labelOneWidth = labelOne.bounds.width
+                self.labelOneWidth = labelOne.frame.width
                 self.addSubview(labelOne)
                 labelTwo.text = getLabelTextForComponent(safeComponents[1])
-                self.labelTwoWidth = labelTwo.bounds.width
+                self.labelTwoWidth = labelTwo.frame.width
                 self.addSubview(labelTwo)
                 labelThree.text = getLabelTextForComponent(safeComponents[2])
-                self.labelThreeWidth = labelThree.bounds.width
+                self.labelThreeWidth = labelThree.frame.width
                 self.addSubview(labelThree)
                 break
                 
@@ -406,6 +406,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     override public func layoutSubviews() {
         super.layoutSubviews()
         
+
         var views: [String : UIView]
         
         // Reposition labels
@@ -462,16 +463,18 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 "labelOneWidth" : self.labelOneWidth!,
                 "labelTwoWidth" : self.labelTwoWidth!,
                 "labelThreeWidth" : self.labelThreeWidth!]
-            println(metrics)
             
             self.addConstraint(NSLayoutConstraint(item: self.labelOne, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             self.addConstraint(NSLayoutConstraint(item: self.labelTwo, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             self.addConstraint(NSLayoutConstraint(item: self.labelThree, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
 
-            let vflString = "H:|-componentOneWidth-[labelOne(>=labelOneWidth)]-space-[labelTwo(labelTwoWidth)]-space-[labelThree(labelThreeWidth)]"
+            
+            let vflString = "H:|->=componentOneWidth-[labelOne(>=labelOneWidth@1000)]->=space-[labelTwo(>=labelTwoWidth@1000)]->=space-[labelThree]"
             self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
+                
             
             
+            println(CGRectGetMinX(self.labelTwo.frame))
 //            labelOne.center.y = CGRectGetMidY(pickerView.frame)
 //            labelTwo.center.y = CGRectGetMidY(pickerView.frame)
 //            labelThree.center.y = CGRectGetMidY(pickerView.frame)
