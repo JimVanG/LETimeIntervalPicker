@@ -101,8 +101,8 @@
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="T90-xF-RNF" id="jRs-Rg-J4i">
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WhD-O9-WUc" customClass="LETimeIntervalPicker" customModule="LETimeIntervalPicker">
-                                                    <rect key="frame" x="0.0" y="1" width="600" height="216"/>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WhD-O9-WUc" customClass="LETimeIntervalPicker" customModule="LETimeIntervalPicker">
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="215.5"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <connections>
                                                         <action selector="pickerChanged:" destination="v2U-lP-kG1" eventType="valueChanged" id="EU0-KM-qWL"/>

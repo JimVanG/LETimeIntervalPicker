@@ -11,18 +11,18 @@ import UIKit
 // MARK: - Public Components Enum
 
 /**
-Use the `Components` enum to specify the type of time-interval/duration that you'd like the row to display. 
+Use the `Components` enum to specify the type of time-interval/duration that you'd like the row to display.
 
 Usage:
 
-    //specifies that componentOne will be in years with 20 rows.
-    self.picker.componentOne = .Year(20)
-    //specifies that componentTwo will be in minutes and will use the default value (60 rows)
-    self.picker.componentTwo = .Minutes(nil)
-    //specifies that componentThree will be in hours with 13 rows.
-    self.picker.componentThree = .Hours(13)
-    //makes it so there will be no componentThree
-    self.picker.componentThree = .None
+//specifies that componentOne will be in years with 20 rows.
+self.picker.componentOne = .Year(20)
+//specifies that componentTwo will be in minutes and will use the default value (60 rows)
+self.picker.componentTwo = .Minutes(nil)
+//specifies that componentThree will be in hours with 13 rows.
+self.picker.componentThree = .Hours(13)
+//makes it so there will be no componentThree
+self.picker.componentThree = .None
 
 The supported time-interval/duration types are:
 
@@ -176,7 +176,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     
     public func setPickerComponentsToValuesAnimated(componentOneValue: String?, componentTwoValue: String?,
         componentThreeValue: String?) {
-
+            
             self.setPickerComponentsToValues(componentOneValue?.toInt(), componentTwoValue: componentTwoValue?.toInt(), componentThreeValue: componentThreeValue?.toInt(), animated: true)
     }
     
@@ -272,7 +272,6 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             case 1:
                 self.labelOne.setTranslatesAutoresizingMaskIntoConstraints(false)
                 labelOne.text = getLabelTextForComponent(safeComponents[0])
-                self.labelOneWidth = labelOne.frame.width
                 self.addSubview(labelOne)
                 break
                 
@@ -280,10 +279,8 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 self.labelOne.setTranslatesAutoresizingMaskIntoConstraints(false)
                 self.labelTwo.setTranslatesAutoresizingMaskIntoConstraints(false)
                 labelOne.text = getLabelTextForComponent(safeComponents[0])
-                self.labelOneWidth = labelOne.frame.width
                 self.addSubview(labelOne)
                 labelTwo.text = getLabelTextForComponent(safeComponents[1])
-                self.labelTwoWidth = labelTwo.frame.width
                 self.addSubview(labelTwo)
                 break
                 
@@ -292,13 +289,10 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 self.labelTwo.setTranslatesAutoresizingMaskIntoConstraints(false)
                 self.labelThree.setTranslatesAutoresizingMaskIntoConstraints(false)
                 labelOne.text = getLabelTextForComponent(safeComponents[0])
-                self.labelOneWidth = labelOne.frame.width
                 self.addSubview(labelOne)
                 labelTwo.text = getLabelTextForComponent(safeComponents[1])
-                self.labelTwoWidth = labelTwo.frame.width
                 self.addSubview(labelTwo)
                 labelThree.text = getLabelTextForComponent(safeComponents[2])
-                self.labelThreeWidth = labelThree.frame.width
                 self.addSubview(labelThree)
                 break
                 
@@ -398,15 +392,12 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     private let extraComponentSpacing: CGFloat = 10     // Add an additional 10 points between the components
     private let labelSpacing: CGFloat = 5               // Spacing between picker numbers and labels
     
-    // Label widths
-    private var labelOneWidth: CGFloat?
-    private var labelTwoWidth: CGFloat?
-    private var labelThreeWidth: CGFloat?
     
     override public func layoutSubviews() {
         super.layoutSubviews()
         
-
+        
+        
         var views: [String : UIView]
         
         // Reposition labels
@@ -424,33 +415,67 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             
         case 2:
             
-            labelOne.center.y = CGRectGetMidY(pickerView.frame)
-            labelTwo.center.y = CGRectGetMidY(pickerView.frame)
-            
-            let pickerMinX = CGRectGetMidX(bounds) - totalPickerWidth / 2
-            labelOne.frame.origin.x = pickerMinX + (numberWidth * 3) + (labelSpacing * 2) + extraComponentSpacing
-            
-            let space = standardComponentSpacing + extraComponentSpacing + (labelSpacing * 5)
-            labelTwo.frame.origin.x = CGRectGetMaxX(labelOne.frame) + space
+//            labelOne.center.y = CGRectGetMidY(pickerView.frame)
+//            labelTwo.center.y = CGRectGetMidY(pickerView.frame)
+//            
+//            let pickerMinX = CGRectGetMidX(bounds) - totalPickerWidth / 2
+//            labelOne.frame.origin.x = pickerMinX + (numberWidth * 3) + (labelSpacing * 2) + extraComponentSpacing
+//            
+//            let space = standardComponentSpacing + extraComponentSpacing + (labelSpacing * 5)
+//            labelTwo.frame.origin.x = CGRectGetMaxX(labelOne.frame) + space
             
             labelThree.hidden = true
+            
+            views = ["labelOne" : self.labelOne, "labelTwo" : self.labelTwo, "labelThree" : self.labelThree]
+            
+            let labelOneWidth = self.widthOfLabelWithText(self.getPluralTextForPickerComponentPosition(0))
+            let labelTwoWidth = self.widthOfLabelWithText(self.getPluralTextForPickerComponentPosition(1))
+            
+            let pickerMinX = CGRectGetMidX(bounds) - totalPickerWidth / 3
+            //            labelOne.frame.origin.x = pickerMinX + numberWidth + labelSpacing
+            let space = standardComponentSpacing + extraComponentSpacing + numberWidth + labelSpacing
+            //            labelTwo.frame.origin.x = CGRectGetMaxX(labelOne.frame) + space
+            //            labelThree.frame.origin.x = CGRectGetMaxX(labelTwo.frame) + space
+            
+            let one = pickerMinX + numberWidth + labelSpacing
+            let two = labelOneWidth + space
+            
+            let metrics: [String : CGFloat] = [
+                "componentOneWidth" : one,
+                "componentTwoWidth" : two,
+                "labelSpacing" : self.labelSpacing,
+                "numberWidth" : self.numberWidth,
+                "labelAndNumber" : (self.labelSpacing + self.numberWidth),
+                "space" : space,
+                "labelOneWidth" : labelOneWidth,
+                "labelTwoWidth" : labelTwoWidth]
+            
+            self.addConstraint(NSLayoutConstraint(item: self.labelOne, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+            self.addConstraint(NSLayoutConstraint(item: self.labelTwo, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
+            
+            
+            let vflString = "H:|-componentOneWidth-[labelOne(==labelOneWidth@1000)]-space-[labelTwo(==labelTwoWidth@1000)]-componentOneWidth-|"
+            self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
             
             break
             
         case 3:
             
             views = ["labelOne" : self.labelOne, "labelTwo" : self.labelTwo, "labelThree" : self.labelThree]
-
+            
+            let labelOneWidth = self.widthOfLabelWithText(self.getPluralTextForPickerComponentPosition(0))
+            let labelTwoWidth = self.widthOfLabelWithText(self.getPluralTextForPickerComponentPosition(1))
+            let labelThreeWidth = self.widthOfLabelWithText(self.getPluralTextForPickerComponentPosition(2))
             
             let pickerMinX = CGRectGetMidX(bounds) - totalPickerWidth / 2
-//            labelOne.frame.origin.x = pickerMinX + numberWidth + labelSpacing
+            //            labelOne.frame.origin.x = pickerMinX + numberWidth + labelSpacing
             let space = standardComponentSpacing + extraComponentSpacing + numberWidth + labelSpacing
-//            labelTwo.frame.origin.x = CGRectGetMaxX(labelOne.frame) + space
-//            labelThree.frame.origin.x = CGRectGetMaxX(labelTwo.frame) + space
+            //            labelTwo.frame.origin.x = CGRectGetMaxX(labelOne.frame) + space
+            //            labelThree.frame.origin.x = CGRectGetMaxX(labelTwo.frame) + space
             
             let one = pickerMinX + numberWidth + labelSpacing
-            let two = self.labelOneWidth! + space
-            let three = self.labelTwoWidth! + space
+            let two = labelOneWidth + space
+            let three = labelTwoWidth + space
             
             let metrics: [String : CGFloat] = [
                 "componentOneWidth" : one,
@@ -460,32 +485,31 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 "numberWidth" : self.numberWidth,
                 "labelAndNumber" : (self.labelSpacing + self.numberWidth),
                 "space" : space,
-                "labelOneWidth" : self.labelOneWidth!,
-                "labelTwoWidth" : self.labelTwoWidth!,
-                "labelThreeWidth" : self.labelThreeWidth!]
+                "labelOneWidth" : labelOneWidth,
+                "labelTwoWidth" : labelTwoWidth,
+                "labelThreeWidth" : labelThreeWidth]
             
             self.addConstraint(NSLayoutConstraint(item: self.labelOne, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             self.addConstraint(NSLayoutConstraint(item: self.labelTwo, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             self.addConstraint(NSLayoutConstraint(item: self.labelThree, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
-
             
-            let vflString = "H:|->=componentOneWidth-[labelOne(>=labelOneWidth@1000)]->=space-[labelTwo(>=labelTwoWidth@1000)]->=space-[labelThree]"
+            
+            let vflString = "H:|-componentOneWidth-[labelOne(==labelOneWidth@1000)]-space-[labelTwo(==labelTwoWidth@1000)]-space-[labelThree(==labelThreeWidth@1000)]"
             self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
-                
             
             
-            println(CGRectGetMinX(self.labelTwo.frame))
-//            labelOne.center.y = CGRectGetMidY(pickerView.frame)
-//            labelTwo.center.y = CGRectGetMidY(pickerView.frame)
-//            labelThree.center.y = CGRectGetMidY(pickerView.frame)
             
-//            let pickerMinX = CGRectGetMidX(bounds) - totalPickerWidth / 2
+            //            labelOne.center.y = CGRectGetMidY(pickerView.frame)
+            //            labelTwo.center.y = CGRectGetMidY(pickerView.frame)
+            //            labelThree.center.y = CGRectGetMidY(pickerView.frame)
+            
+            //            let pickerMinX = CGRectGetMidX(bounds) - totalPickerWidth / 2
             //            labelOne.frame.origin.x = pickerMinX + numberWidth + labelSpacing
-//            let space = standardComponentSpacing + extraComponentSpacing + numberWidth + labelSpacing
+            //            let space = standardComponentSpacing + extraComponentSpacing + numberWidth + labelSpacing
             //            labelTwo.frame.origin.x = CGRectGetMaxX(labelOne.frame) + space
             //            labelThree.frame.origin.x = CGRectGetMaxX(labelTwo.frame) + space
-
-
+            
+            
             
             break
             
@@ -493,6 +517,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             println("Unhandled numberOfComponents (\(self.numberOfComponents)) in 'layoutSubviews()'")
             break
         }
+
     }
     
     // MARK: - Picker view data source
@@ -561,7 +586,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 // Setup label and add as subview
                 let label = UILabel()
                 label.font = font
-                label.textAlignment = .Right
+                label.textAlignment = .Left
                 label.adjustsFontSizeToFitWidth = false
                 label.frame.size = CGSize(width: numberWidth, height: size.height)
                 newView.addSubview(label)
@@ -611,10 +636,10 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     // MARK: - Helpers
     
     private var numberOfComponents: Int {
-            if let safeCount = self.componentsArray?.count {
-                return safeCount
-            }
-            return 0
+        if let safeCount = self.componentsArray?.count {
+            return safeCount
+        }
+        return 0
     }
     
     private func getComponentForPickerComponentPosition(componentPostiion: Int) -> Components {
@@ -825,7 +850,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             }
     }
     
-   private func getTimeIntervalInISO8601() -> String? {
+    private func getTimeIntervalInISO8601() -> String? {
         
         var isoFormatString: String?
         
@@ -833,7 +858,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             
             // Sort array in descending order.
             let sortedComponents = sorted(safeArray){ $0.hashValue < $1.hashValue }
-
+            
             for (index, comp) in enumerate(sortedComponents) {
                 
                 // get the corresponting index so we know which component to look in.
@@ -856,15 +881,15 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                     if !contains(isoFormatString!, "T") {
                         isoFormatString? += "T"
                     }
-                
+                    
                     isoFormatString? += self.getComponentValueWithTypeAbbreviation(correspondingIndex!)
-
+                    
                     break
                     
                 case .None:
                     //Shouldn't happen.
                     break
-                
+                    
                 default:
                     
                     isoFormatString? += self.getComponentValueWithTypeAbbreviation(correspondingIndex!)
@@ -873,13 +898,13 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 }
             }
         }
-
+        
         return isoFormatString
     }
     
     /**
     Gets the displayed number value in the componenent, no formatting.
-
+    
     */
     private func getComponentValue(componentPosition: Int) -> String {
         
@@ -997,4 +1022,37 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         dayString = NSLocalizedString("day", tableName: tableName, bundle: bundle,
             comment: "A singular alternative for the days text.")
     }
+    
+    ///Gets the width of the label with the desired text. Meant to be used with the plural text to stop the labels from shifting with going from plural to singular.
+    private func widthOfLabelWithText(pluralText: String) -> CGFloat {
+        
+        let testLabel = UILabel()
+        testLabel.text = pluralText
+        testLabel.font = self.font
+        testLabel.sizeToFit()
+        return testLabel.frame.width
+        
+        
+        //        let textString: NSString = pluralText
+        //        let font: UIFont = self.font
+        //        let width: CGFloat = testLabel.frame.size.width
+        //
+        //        let paragraphStyle = NSMutableParagraphStyle()
+        //        paragraphStyle.lineBreakMode = testLabel.lineBreakMode
+        //
+        //
+        //        let labelRect: CGRect = textString.boundingRectWithSize(CGSizeMake(width, CGFloat.max),
+        //            options: .UsesLineFragmentOrigin,
+        //            attributes: [NSFontAttributeName : font,
+        //                NSParagraphStyleAttributeName : paragraphStyle.copy()],
+        //            context: nil)
+        //        
+        //        
+        //        
+        //        return labelRect.size.width
+    }
 }
+
+
+
+
