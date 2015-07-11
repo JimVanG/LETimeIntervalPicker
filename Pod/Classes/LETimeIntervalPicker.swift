@@ -15,14 +15,14 @@ Use the `Components` enum to specify the type of time-interval/duration that you
 
 Usage:
 
-//specifies that componentOne will be in years with 20 rows.
-self.picker.componentOne = .Year(20)
-//specifies that componentTwo will be in minutes and will use the default value (60 rows)
-self.picker.componentTwo = .Minutes(nil)
-//specifies that componentThree will be in hours with 13 rows.
-self.picker.componentThree = .Hours(13)
-//makes it so there will be no componentThree
-self.picker.componentThree = .None
+    //specifies that componentOne will be in years with 20 rows.
+    self.picker.componentOne = .Year(20)
+    //specifies that componentTwo will be in minutes and will use the default value (60 rows)
+    self.picker.componentTwo = .Minutes(nil)
+    //specifies that componentThree will be in hours with 13 rows.
+    self.picker.componentThree = .Hours(13)
+    //makes it so there will be no componentThree
+    self.picker.componentThree = .None
 
 The supported time-interval/duration types are:
 
@@ -58,7 +58,7 @@ public enum Components: Hashable {
         return self.toInt()
     }
     
-    ///The default row count for the Component, if there wasn't one specified.
+    ///The default row count for the `Component`, if there wasn't one specified.
     public var defaultRowCount : Int {
         switch self {
         case .Year:
@@ -80,7 +80,29 @@ public enum Components: Hashable {
         }
     }
     
-    /// Return an 'Int' value for each `Component` type so `Component` can conform to `Hashable`. Ordered from largest time interval to smallest.
+    ///Returns the number of rows for the `Component`
+    public var rowCount : Int {
+        switch self {
+        case let .Year(rows) where rows != nil:
+            return (rows! > 100) ? 100 : rows!
+        case let .Month(rows) where rows != nil:
+            return (rows! > 100) ? 100 : rows!
+        case let .Week(rows) where rows != nil:
+            return (rows! > 100) ? 100 : rows!
+        case let .Day(rows) where rows != nil:
+            return (rows! > 100) ? 100 : rows!
+        case let .Hour(rows) where rows != nil:
+            return (rows! > 100) ? 100 : rows!
+        case let .Minute(rows) where rows != nil:
+            return (rows! > 100) ? 100 : rows!
+        case let .Second(rows) where rows != nil:
+            return (rows! > 100) ? 100 : rows!
+        default:
+            return self.defaultRowCount
+        }
+    }
+    
+    /// Return an `Int` value for each `Component` type so `Component` can conform to `Hashable`. Ordered from largest time interval to smallest, must stay in this order.
     private func toInt() -> Int {
         switch self {
         case .None:
@@ -110,12 +132,12 @@ public func == (lhs: Components, rhs: Components) -> Bool {
     return lhs.toInt() == rhs.toInt()
 }
 
+/// A class to display: Hour, Minute, Second, Year, Month, Week, and Day durations in a `UIPicker`.
 public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerViewDelegate {
     
     // MARK: - Public API
     
-    
-    public var timeInterval: NSTimeInterval {
+        public var timeInterval: NSTimeInterval {
         get {
             var numberOne = 0
             var numberTwo = 0
@@ -162,6 +184,9 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         }
     }
     
+    /**
+    Returns the pickes selected components in the ISO8601 format
+    */
     public var timeIntervalAsISO8601: String? {
         get {
             return self.getTimeIntervalInISO8601()
@@ -178,8 +203,9 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             self.setPickerComponentsToValues(componentOneValue?.toInt(), componentTwoValue: componentTwoValue?.toInt(), componentThreeValue: componentThreeValue?.toInt(), animated: true)
     }
     
-    // Note that setting a font that makes the picker wider
-    // than this view can cause layout problems
+    /**
+    Note that setting a font that makes the picker wider than this view can cause layout problems
+    */
     public var font = UIFont.systemFontOfSize(17) {
         didSet {
             self.updateLabels()
@@ -197,10 +223,14 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     private let labelTwo = UILabel()
     private let labelThree = UILabel()
     
-    // Component type for each picker column (defaults to hour, minute, second)
+    /// Component type for column one/left (defaults to hour). **Must specify .None to make hidden**.
     public var componentOne: Components = .None
+    /// Component type for column two/middle (defaults to minute). **Must specify .None to make hidden**.
     public var componentTwo: Components = .None
+    /// Component type for column three/right (defaults to second). **Must specify .None to make hidden**.
     public var componentThree: Components = .None
+    
+    /// The array that holds the `.Components`. Ignores `.None Compnents` type.
     private var componentsArray: [Components]?
     
     // MARK: - Initialization
@@ -494,34 +524,14 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     }
     
     public func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        
-        let comp = self.getComponentForPickerComponentPosition(component)
-        
-        switch comp {
-        case let .Hour(numberOfRows) where numberOfRows != nil:
-            return numberOfRows!
-        case let .Minute(numberOfRows) where numberOfRows != nil:
-            return numberOfRows!
-        case let .Second(numberOfRows) where numberOfRows != nil:
-            return numberOfRows!
-        case let .Year(numberOfRows) where numberOfRows != nil:
-            return numberOfRows!
-        case let .Month(numberOfRows) where numberOfRows != nil:
-            return numberOfRows!
-        case let .Week(numberOfRows) where numberOfRows != nil:
-            return numberOfRows!
-        case let .Day(numberOfRows) where numberOfRows != nil:
-            return numberOfRows!
-        default:
-            return comp.defaultRowCount
-        }
+        return self.getComponentForPickerComponentPosition(component).rowCount
     }
     
     // MARK: - Picker view delegate
     
     public func pickerView(pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
         
-        let labelWidth: CGFloat
+        let labelWidth, compWidth: CGFloat
         
         switch (component) {
         case 0:
@@ -533,8 +543,9 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         default:
             return 0.0
         }
-        
-        return self.numberWidth + labelWidth + self.labelSpacing + self.extraComponentSpacing
+
+         return (self.numberWidth + labelWidth + self.labelSpacing + self.extraComponentSpacing)
+
     }
     
     public func pickerView(pickerView: UIPickerView,

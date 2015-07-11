@@ -20,9 +20,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         formatter.unitsStyle = .Abbreviated
-        picker.componentOne = .None
-        picker.componentTwo = .Year(nil)
-        picker.componentThree = .None
+        picker.componentOne = .Minute(37)
+        picker.componentTwo = .Year(111)
+        picker.componentThree = .Week(65)
         picker.setup()
         
     }
