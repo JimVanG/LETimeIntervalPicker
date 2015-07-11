@@ -33,6 +33,10 @@ class TableViewController: UITableViewController {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         tableView.beginUpdates()
         pickerIsVisible = !pickerIsVisible
+        tableView.setNeedsUpdateConstraints()
+        tableView.updateConstraintsIfNeeded()
+        tableView.setNeedsLayout()
+        tableView.layoutIfNeeded()
         tableView.endUpdates()
     }
     
