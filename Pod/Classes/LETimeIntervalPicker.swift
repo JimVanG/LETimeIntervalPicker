@@ -59,7 +59,7 @@ public enum Components: Hashable {
     }
     
     ///The default row count for the `Component`, if there wasn't one specified.
-    public var defaultRowCount : Int {
+    var defaultRowCount : Int {
         switch self {
         case .Year:
             return 100
@@ -282,6 +282,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             self.setup()
     }
     
+    /// Call to set up the pickerview. Should be called after setting the desired `Components`.
     public func setup() {
         self.createValidComponentsArray()
         self.setupLocalizations()
@@ -452,12 +453,10 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             let pickerMinX = CGRectGetMidX(bounds) - self.totalPickerWidth / 3
             let space = self.standardComponentSpacing + self.extraComponentSpacing + self.numberWidth + self.labelSpacing
             
-            let one = pickerMinX + self.numberWidth + self.extraComponentSpacing
-            let two = labelOneWidth + space
+            let one = pickerMinX + self.numberWidth + self.standardComponentSpacing + self.extraComponentSpacing
             
             let metrics: [String : CGFloat] = [
-                "componentOneWidth" : one,
-                "componentTwoWidth" : two,
+                "spaceOne" : one,
                 "labelSpacing" : self.labelSpacing,
                 "numberWidth" : self.numberWidth,
                 "labelAndNumber" : (self.labelSpacing + self.numberWidth),
@@ -468,7 +467,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             self.addConstraint(NSLayoutConstraint(item: self.labelOne, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             self.addConstraint(NSLayoutConstraint(item: self.labelTwo, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             
-            let vflString = "H:|-componentOneWidth-[labelOne(==labelOneWidth@1000)]-space-[labelTwo(==labelTwoWidth@1000)]"
+            let vflString = "H:|->=spaceOne-[labelOne(==labelOneWidth@1000)]->=space-[labelTwo(==labelTwoWidth@1000)]"
             self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
             
             break
@@ -485,13 +484,9 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             let space = self.standardComponentSpacing + self.extraComponentSpacing + self.numberWidth + self.labelSpacing
             
             let one = pickerMinX + self.numberWidth + self.labelSpacing
-            let two = labelOneWidth + space
-            let three = labelTwoWidth + space
             
             let metrics: [String : CGFloat] = [
-                "componentOneWidth" : one,
-                "componentTwoWidth" : two,
-                "componentThreeWidth" : three,
+                "spaceOne" : one,
                 "labelSpacing" : self.labelSpacing,
                 "numberWidth" : self.numberWidth,
                 "labelAndNumber" : (self.labelSpacing + self.numberWidth),
@@ -505,7 +500,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             self.addConstraint(NSLayoutConstraint(item: self.labelThree, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             
             
-            let vflString = "H:|-componentOneWidth-[labelOne(==labelOneWidth@1000)]-space-[labelTwo(==labelTwoWidth@1000)]-space-[labelThree(==labelThreeWidth@1000)]"
+            let vflString = "H:|-spaceOne-[labelOne(==labelOneWidth@1000)]-space-[labelTwo(==labelTwoWidth@1000)]-space-[labelThree(==labelThreeWidth@1000)]"
             self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
 
             break
