@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.screenshots      = "http://i.imgur.com/qi9fHVN.png"
   s.license          = 'MIT'
   s.author           = "JimVanG"
-  s.source           = { :git => "https://github.com/JimVanG/LETimeIntervalPicker.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/JimVanG/LETimeIntervalPicker.git", :tag => "2.0.2-allogy" }
 
   s.platform     = :ios, '8.0'
   s.requires_arc = true
