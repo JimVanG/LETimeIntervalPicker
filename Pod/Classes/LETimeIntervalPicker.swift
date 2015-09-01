@@ -15,13 +15,13 @@ Use the `Components` enum to specify the type of time-interval/duration that you
 
 Usage:
 
-    //specifies that componentOne will be in years with 20 rows.
+//specifies that componentOne will be in years with 20 rows.
     self.picker.componentOne = .Year(20)
-    //specifies that componentTwo will be in minutes and will use the default value (60 rows)
+//specifies that componentTwo will be in minutes and will use the default value (60 rows)
     self.picker.componentTwo = .Minutes(nil)
-    //specifies that componentThree will be in hours with 13 rows.
+//specifies that componentThree will be in hours with 13 rows.
     self.picker.componentThree = .Hours(13)
-    //makes it so there will be no componentThree
+//makes it so there will be no componentThree
     self.picker.componentThree = .None
 
 The supported time-interval/duration types are:
@@ -375,6 +375,11 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         self.pickerView.setTranslatesAutoresizingMaskIntoConstraints(false)
         self.addSubview(pickerView)
         
+        self.setUpPickerViewConstraints()
+    }
+    
+    private func setUpPickerViewConstraints() {
+        
         // Size picker view to fit self
         let top = NSLayoutConstraint(item: self.pickerView,
             attribute: .Top,
@@ -409,26 +414,10 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             constant: 0)
         
         self.addConstraints([top, bottom, leading, trailing])
+        
     }
     
-    // MARK: - Layout
-    
-    
-    private var totalPickerWidth: CGFloat = 0
-    /// Width of UILabel displaying a two digit number with standard font
-    private var numberWidth: CGFloat = 20
-    /// A UIPickerView has a 5 point space between components
-    private let standardComponentSpacing: CGFloat = 5
-    /// Add an additional 10 points between the components
-    private let extraComponentSpacing: CGFloat = 10
-    /// Spacing between picker numbers and labels
-    private let labelSpacing: CGFloat = 5
-    
-    
-    override public func layoutSubviews() {
-        super.layoutSubviews()
-        
-        // Reposition labels
+    private func setUpPickerSubviewConstraints() {
         
         switch (self.numberOfComponents) {
         case 1:
@@ -499,16 +488,41 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             self.addConstraint(NSLayoutConstraint(item: self.labelTwo, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             self.addConstraint(NSLayoutConstraint(item: self.labelThree, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             
-            
             let vflString = "H:|-spaceOne-[labelOne(==labelOneWidth@1000)]-space-[labelTwo(==labelTwoWidth@1000)]-space-[labelThree(==labelThreeWidth@1000)]"
             self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
-
+            
             break
             
         default:
-            println("Unhandled numberOfComponents (\(self.numberOfComponents)) in 'layoutSubviews()'")
+            println("Unhandled numberOfComponents (\(self.numberOfComponents)) in 'setUpPickerSubviewConstraints()'")
             break
         }
+        
+    }
+    
+    // MARK: - Layout
+    
+    
+    private var totalPickerWidth: CGFloat = 0
+    /// Width of UILabel displaying a two digit number with standard font
+    private var numberWidth: CGFloat = 20
+    /// A UIPickerView has a 5 point space between components
+    private let standardComponentSpacing: CGFloat = 5
+    /// Add an additional 10 points between the components
+    private let extraComponentSpacing: CGFloat = 10
+    /// Spacing between picker numbers and labels
+    private let labelSpacing: CGFloat = 5
+    
+    
+    
+    override public func layoutSubviews() {
+        super.layoutSubviews()
+        
+        // Reposition labels
+        
+        self.removeConstraints(self.constraints())
+        self.setUpPickerViewConstraints()
+        self.setUpPickerSubviewConstraints()
         
     }
     
@@ -538,9 +552,9 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         default:
             return 0.0
         }
-
-         return (self.numberWidth + labelWidth + self.labelSpacing + self.extraComponentSpacing)
-
+        
+        return (self.numberWidth + labelWidth + self.labelSpacing + self.extraComponentSpacing)
+        
     }
     
     public func pickerView(pickerView: UIPickerView,
@@ -1007,9 +1021,5 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         self.dayString = NSLocalizedString("day", tableName: tableName, bundle: bundle,
             comment: "A singular alternative for the days text.")
     }
-
+    
 }
-
-
-
-
