@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "LETimeIntervalPicker"
-  s.version          = "2.0.4"
+  s.version          = "2.0.5"
   s.summary          = "A UIDatePicker for time intervals."
   s.description      = <<-DESC
                        LETimeIntervalPicker lets you pick a time interval with hours, minutes and seconds.
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.screenshots      = "http://i.imgur.com/qi9fHVN.png"
   s.license          = 'MIT'
   s.author           = "JimVanG"
-  s.source           = { :git => "https://github.com/JimVanG/LETimeIntervalPicker.git", :tag => "2.0.4-allogy" }
+  s.source           = { :git => "https://github.com/JimVanG/LETimeIntervalPicker.git", :tag => "2.0.5-allogy" }
 
   s.platform     = :ios, '8.0'
   s.requires_arc = true
