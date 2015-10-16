@@ -180,7 +180,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         }
         
         set {
-            self.setPickerComponentsToValues(newValue.valueOne.toInt()!, componentTwoValue: newValue.valueTwo.toInt()!, componentThreeValue: newValue.valueThree.toInt()!, animated: false)
+            self.setPickerComponentsToValues(Int(newValue.valueOne)!, componentTwoValue: Int(newValue.valueTwo)!, componentThreeValue: Int(newValue.valueThree)!, animated: false)
         }
     }
     
@@ -200,7 +200,12 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     public func setPickerComponentsToValuesAnimated(componentOneValue: String?, componentTwoValue: String?,
         componentThreeValue: String?) {
             
-            self.setPickerComponentsToValues(componentOneValue?.toInt(), componentTwoValue: componentTwoValue?.toInt(), componentThreeValue: componentThreeValue?.toInt(), animated: true)
+            guard let one = componentOneValue, two = componentTwoValue, three = componentThreeValue else {
+                print("setPickerComponentsToValuesAnimated(): Couln't unwrapp componenent values.")
+                return
+            }
+            
+            self.setPickerComponentsToValues(Int(one), componentTwoValue: Int(two), componentThreeValue: Int(three), animated: true)
     }
     
     /**
@@ -235,7 +240,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     
     // MARK: - Initialization
     
-    required public init(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         self.componentOne = .Hour(24)
         self.componentTwo = .Minute(60)
         self.componentThree = .Second(60)
@@ -299,14 +304,14 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             switch safeComponents.count {
                 
             case 1:
-                self.labelOne.setTranslatesAutoresizingMaskIntoConstraints(false)
+                self.labelOne.translatesAutoresizingMaskIntoConstraints = false
                 self.labelOne.text = self.getLabelTextForComponent(safeComponents[0])
                 self.addSubview(self.labelOne)
                 break
                 
             case 2:
-                self.labelOne.setTranslatesAutoresizingMaskIntoConstraints(false)
-                self.labelTwo.setTranslatesAutoresizingMaskIntoConstraints(false)
+                self.labelOne.translatesAutoresizingMaskIntoConstraints = false
+                self.labelTwo.translatesAutoresizingMaskIntoConstraints = false
                 self.labelOne.text = self.getLabelTextForComponent(safeComponents[0])
                 self.addSubview(self.labelOne)
                 self.labelTwo.text = self.getLabelTextForComponent(safeComponents[1])
@@ -314,9 +319,9 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 break
                 
             case 3:
-                self.labelOne.setTranslatesAutoresizingMaskIntoConstraints(false)
-                self.labelTwo.setTranslatesAutoresizingMaskIntoConstraints(false)
-                self.labelThree.setTranslatesAutoresizingMaskIntoConstraints(false)
+                self.labelOne.translatesAutoresizingMaskIntoConstraints = false
+                self.labelTwo.translatesAutoresizingMaskIntoConstraints = false
+                self.labelThree.translatesAutoresizingMaskIntoConstraints = false
                 self.labelOne.text = self.getLabelTextForComponent(safeComponents[0])
                 self.addSubview(self.labelOne)
                 self.labelTwo.text = self.getLabelTextForComponent(safeComponents[1])
@@ -372,7 +377,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     func setupPickerView() {
         self.pickerView.dataSource = self
         self.pickerView.delegate = self
-        self.pickerView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.pickerView.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(pickerView)
         
         self.setUpPickerViewConstraints()
@@ -457,7 +462,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             self.addConstraint(NSLayoutConstraint(item: self.labelTwo, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             
             let vflString = "H:|->=spaceOne-[labelOne(==labelOneWidth@1000)]->=space-[labelTwo(==labelTwoWidth@1000)]"
-            self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
+            self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(rawValue: 0), metrics: metrics, views: views ))
             
             break
             
@@ -489,12 +494,12 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
             self.addConstraint(NSLayoutConstraint(item: self.labelThree, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: 0.0))
             
             let vflString = "H:|-spaceOne-[labelOne(==labelOneWidth@1000)]-space-[labelTwo(==labelTwoWidth@1000)]-space-[labelThree(==labelThreeWidth@1000)]"
-            self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(0), metrics: metrics, views: views ))
+            self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(vflString, options: NSLayoutFormatOptions(rawValue: 0), metrics: metrics, views: views ))
             
             break
             
         default:
-            println("Unhandled numberOfComponents (\(self.numberOfComponents)) in 'setUpPickerSubviewConstraints()'")
+            print("Unhandled numberOfComponents (\(self.numberOfComponents)) in 'setUpPickerSubviewConstraints()'")
             break
         }
         
@@ -520,7 +525,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         
         // Reposition labels
         
-        self.removeConstraints(self.constraints())
+        self.removeConstraints(self.constraints)
         self.setUpPickerViewConstraints()
         self.setUpPickerSubviewConstraints()
         
@@ -540,7 +545,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     
     public func pickerView(pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
         
-        let labelWidth, compWidth: CGFloat
+        let labelWidth: CGFloat
         
         switch (component) {
         case 0:
@@ -560,7 +565,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
     public func pickerView(pickerView: UIPickerView,
         viewForRow row: Int,
         forComponent component: Int,
-        reusingView view: UIView!) -> UIView {
+        reusingView view: UIView?) -> UIView {
             
             // Check if view can be reused
             var newView = view
@@ -576,13 +581,13 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 label.textAlignment = .Left
                 label.adjustsFontSizeToFitWidth = false
                 label.frame.size = CGSize(width: self.numberWidth, height: size.height)
-                newView.addSubview(label)
+                newView!.addSubview(label)
             }
             
-            let label = newView.subviews.first as! UILabel
+            let label = newView!.subviews.first as! UILabel
             label.text = "\(row)"
             
-            return newView
+            return newView!
     }
     
     public func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
@@ -752,6 +757,10 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         }
     }
     
+    public func setPickerForValue(value: Int, inComponent componentPosistion: Int) {
+        self.pickerView.selectRow(value, inComponent: componentPosistion, animated: true)
+    }
+    
     private func setPickerToTimeInterval(interval: NSTimeInterval, animated: Bool) {
         
         let time = self.secondsToHoursMinutesSeconds(Int(interval))
@@ -841,15 +850,15 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
         
         var isoFormatString: String?
         
-        if var safeArray = self.componentsArray {
+        if let safeArray = self.componentsArray {
             
             // Sort array in descending order.
-            let sortedComponents = sorted(safeArray){ $0.hashValue < $1.hashValue }
+            let sortedComponents = safeArray.sort{ $0.hashValue < $1.hashValue }
             
-            for (index, comp) in enumerate(sortedComponents) {
+            for comp in sortedComponents {
                 
                 // get the corresponting index so we know which component to look in.
-                let correspondingIndex = find(safeArray, comp)
+                let correspondingIndex = safeArray.indexOf(comp)
                 
                 // if the corresponding index in nil, or if the corresopnding component row is zero then continue.
                 if correspondingIndex == nil || self.pickerView.selectedRowInComponent(correspondingIndex!) == 0 {
@@ -857,7 +866,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                 }
                 
                 // Want to make sure there is only one 'P' and it's at the beginning of the string.
-                if isoFormatString == nil || isEmpty(isoFormatString!) {
+                if isoFormatString == nil || (isoFormatString!).characters.isEmpty {
                     isoFormatString = "P"
                 }
                 
@@ -865,7 +874,7 @@ public class LETimeIntervalPicker: UIControl, UIPickerViewDataSource, UIPickerVi
                     
                 case .Hour, .Minute, .Second:
                     // if we are an Hour, Minute, Second component type then we need to make sure that there is a'T' before any of these component types are added to the string.
-                    if !contains(isoFormatString!, "T") {
+                    if !(isoFormatString!).characters.contains("T") {
                         isoFormatString? += "T"
                     }
                     
